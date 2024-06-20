@@ -1,0 +1,73 @@
+basePath: /
+definitions:
+  http.Error:
+    properties:
+      payload: {}
+      status:
+        type: string
+    type: object
+  http.Success:
+    properties:
+      payload: {}
+      status:
+        type: string
+    type: object
+  types.Build:
+    properties:
+      execute_script:
+        type: string
+      id:
+        type: integer
+      init_script:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: HTTP Tabasco
+  termsOfService: http://swagger.io/terms/
+  title: Task Batching Storage Coordinator API
+  version: "1.0"
+paths:
+  /build:
+    put:
+      consumes:
+      - application/json
+      description: Put build.
+      parameters:
+      - description: cc
+        in: body
+        name: build
+        required: true
+        schema:
+          $ref: '#/definitions/types.Build'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/http.Success'
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Put build
+  /builds:
+    get:
+      description: Retrieves a list of builds.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of builds
+          schema:
+            items:
+              $ref: '#/definitions/types.Build'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get builds
+swagger: "2.0"

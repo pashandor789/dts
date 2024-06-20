@@ -2,10 +2,10 @@ package http
 
 import (
 	"context"
+	"dts/pkg/log"
 	"fmt"
 	stdlog "log"
 	"net/http"
-	"pkg/log"
 	"time"
 
 	"github.com/go-chi/chi"

@@ -1,4 +1,3 @@
-//nolint:exhaustruct // false positive
 package chi
 
 import (
@@ -6,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"dts/pkg/log"
 	"github.com/go-chi/chi/v5/middleware"
-	"log"
 )
 
 var _ middleware.LogEntry = &LogEntry{}

@@ -7,9 +7,10 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
 
-	"health"
-	"log"
-	logchi "log/chi"
+	"dts/pkg/health"
+	"dts/pkg/log"
+	logchi "dts/pkg/log/chi"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -29,7 +30,6 @@ func DefaultTechOptions(logger promhttp.Logger, registry prometheus.Gatherer) Ro
 		WithRecover(),
 		WithReadinessHandler(),
 		WithDebugHandler(),
-		WithMetricsHandler(logger, registry),
 	)
 }
 
@@ -58,6 +58,14 @@ func WithDebugHandler() RouterOption {
 func WithMetricsHandler(logger promhttp.Logger, registry prometheus.Gatherer) RouterOption {
 	return func(r chi.Router) {
 		r.Mount("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{ErrorLog: logger}))
+	}
+}
+
+func WithSwagger() RouterOption {
+	return func(r chi.Router) {
+		r.Get("/docs/*", httpSwagger.Handler(
+			httpSwagger.URL("docs/doc.json"),
+		))
 	}
 }
 
