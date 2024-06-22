@@ -25,7 +25,7 @@ func (h *PublicHandler) WithAPIHandlers() pkghttp.RouterOption {
 		pkghttp.AddHandler(r.Get, "/builds", h.getBuilds)
 
 		pkghttp.AddHandler(r.Put, "/build", h.putBuild)
-		//pkghttp.AddHandler(r.Put, "/tests", h.putTests)
+		pkghttp.AddHandler(r.Put, "/tests", h.putTests)
 	}
 }
 
@@ -63,6 +63,6 @@ func (h *PublicHandler) putBuild(r *http.Request) pkghttp.Response {
 	return pkghttp.OK(nil)
 }
 
-//
-//func (h *PublicHandler) putTests(w http.ResponseWriter, r *http.Request) {
-//}
+func (h *PublicHandler) putTests(r *http.Request) pkghttp.Response {
+
+}
