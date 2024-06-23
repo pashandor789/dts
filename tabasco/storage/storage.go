@@ -24,12 +24,12 @@ type Config struct {
 
    schema: (collection)
        task:
-           taskId: ui64
+           taskId: string
            testId: ui64
            testType: input/output (string)
            content: string
        task_meta:
-           taskId: ui64
+           taskId: string
            batches: vector<ui64>
            batchSize: ui64
        builds:
@@ -39,26 +39,39 @@ type Config struct {
 
 */
 
+func (s Storage) GetTests(taskId string) ([]types.Test, error) {
+	coll := s.client.Database("tabasco").Collection("tests")
+
+	filter := bson.M{"task_id": taskId}
+
+	c, err := coll.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, fmt.Errorf("can't get tests: %w", err)
+	}
+
+	var tests []types.Test
+	err = c.All(context.TODO(), &tests)
+	if err != nil {
+		return nil, fmt.Errorf("can't get tests: %w", err)
+	}
+
+	return tests, nil
+}
+
 func (s Storage) PutTests(tests []types.Test) error {
 	coll := s.client.Database("tabasco").Collection("tests")
 
-	_, err := coll.InsertMany(context.TODO(), []any{tests})
-	if err != nil {
-		return fmt.Errorf("can't put tests: %w", err)
+	models := make([]mongo.WriteModel, len(tests))
+	for i, test := range tests {
+		filter := bson.M{"id": test.Id, "type": test.Type, "task_id": test.TaskId}
+		update := bson.M{"$set": test}
+		model := mongo.NewUpdateOneModel().SetFilter(filter).SetUpdate(update).SetUpsert(true)
+		models[i] = model
 	}
 
-	return nil
-}
-
-func (s Storage) PutBuild(build *types.Build) error {
-	coll := s.client.Database("tabasco").Collection("builds")
-
-	filter := bson.M{"id": build.Id}
-	update := bson.M{"$set": build}
-
-	_, err := coll.UpdateOne(context.TODO(), filter, update, options.Update().SetUpsert(true))
+	_, err := coll.BulkWrite(context.TODO(), models)
 	if err != nil {
-		return fmt.Errorf("can't put build: %w", err)
+		return fmt.Errorf("can't put or update tests: %w", err)
 	}
 
 	return nil
@@ -79,6 +92,20 @@ func (s Storage) GetBuilds() ([]types.Build, error) {
 	}
 
 	return builds, nil
+}
+
+func (s Storage) PutBuild(build *types.Build) error {
+	coll := s.client.Database("tabasco").Collection("builds")
+
+	filter := bson.M{"id": build.Id}
+	update := bson.M{"$set": build}
+
+	_, err := coll.UpdateOne(context.TODO(), filter, update, options.Update().SetUpsert(true))
+	if err != nil {
+		return fmt.Errorf("can't put build: %w", err)
+	}
+
+	return nil
 }
 
 func New(cfg Config, logger log.Logger) (*Storage, error) {

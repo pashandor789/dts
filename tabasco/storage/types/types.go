@@ -10,7 +10,7 @@ const (
 type Test struct {
 	Id     uint16   `json:"id" bson:"id"`
 	Type   TestType `json:"type" bson:"type"`
-	TaskId uint64   `json:"task_id" bson:"task_id"`
+	TaskId string   `json:"task_id" bson:"task_id"`
 	Data   []byte   `json:"data" bson:"data"`
 }
 
@@ -21,5 +21,5 @@ type Build struct {
 }
 
 type TaskMeta struct {
-	TaskId uint64
+	TaskId string `json:"task_id"`
 }

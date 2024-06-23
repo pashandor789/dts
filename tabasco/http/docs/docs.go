@@ -28,13 +28,80 @@ const docTemplate = `{
                 "summary": "Put build",
                 "parameters": [
                     {
-                        "description": "cc",
+                        "description": "Build",
                         "name": "build",
                         "in": "body",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/types.Build"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/builds": {
+            "get": {
+                "description": "Retrieves a list of all builds.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves a list of all builds",
+                "responses": {
+                    "200": {
+                        "description": "List of builds",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.Build"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/tests": {
+            "put": {
+                "description": "Put tests with multipart/form-data : meta.json, {i}_input, {i}_output or meta.json, tests.zip",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Put tests.",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "tests.zip with {i}_input, {i}_output",
+                        "name": "tests.zip",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Meta file",
+                        "name": "meta.json",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -53,25 +120,40 @@ const docTemplate = `{
                 }
             }
         },
-        "/builds": {
+        "/tests/{id}": {
             "get": {
-                "description": "Retrieves a list of builds.",
+                "description": "Get tests by the task ID provided as an URL parameter",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get builds",
+                "summary": "Retrieve tests by task ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "List of builds",
+                        "description": "List of tests",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/types.Build"
+                                "$ref": "#/definitions/types.Test"
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/http.Error"
                         }
@@ -103,15 +185,52 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "execute_script": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "id": {
                     "type": "integer"
                 },
                 "init_script": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
+        },
+        "types.Test": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "task_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/types.TestType"
+                }
+            }
+        },
+        "types.TestType": {
+            "type": "integer",
+            "enum": [
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "Input",
+                "Output"
+            ]
         }
     }
 }`

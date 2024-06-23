@@ -25,27 +25,6 @@ definitions:
           type: integer
         type: array
     type: object
-  types.Test:
-    properties:
-      data:
-        items:
-          type: integer
-        type: array
-      id:
-        type: integer
-      task_id:
-        type: string
-      type:
-        $ref: '#/definitions/types.TestType'
-    type: object
-  types.TestType:
-    enum:
-    - 1
-    - 2
-    type: integer
-    x-enum-varnames:
-    - Input
-    - Output
 host: localhost:8000
 info:
   contact: {}
@@ -70,17 +49,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: ok
           schema:
             $ref: '#/definitions/http.Success'
         "400":
-          description: Bad Request
+          description: bad request
           schema:
             $ref: '#/definitions/http.Error'
       summary: Put build
   /builds:
     get:
-      description: Retrieves a list of all builds.
+      description: Retrieves a list of builds.
       produces:
       - application/json
       responses:
@@ -91,24 +70,19 @@ paths:
               $ref: '#/definitions/types.Build'
             type: array
         "400":
-          description: Bad Request
+          description: Bad request
           schema:
             $ref: '#/definitions/http.Error'
-      summary: Retrieves a list of all builds
+      summary: Get builds
   /tests:
     put:
       consumes:
       - multipart/form-data
-      description: 'Put tests with multipart/form-data : meta.json, {i}_input, {i}_output
-        or meta.json, tests.zip'
+      description: Put tests in format {i}_input, {i}_output and task_meta.json.
       parameters:
-      - description: tests.zip with {i}_input, {i}_output
+      - description: 'File for build; expected keys in format: {i}_input / {i}_output'
         in: formData
-        name: tests.zip
-        type: file
-      - description: Meta file
-        in: formData
-        name: meta.json
+        name: file
         required: true
         type: file
       produces:
@@ -122,32 +96,5 @@ paths:
           description: bad request
           schema:
             $ref: '#/definitions/http.Error'
-      summary: Put tests.
-  /tests/{id}:
-    get:
-      description: Get tests by the task ID provided as an URL parameter
-      parameters:
-      - description: Task ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of tests
-          schema:
-            items:
-              $ref: '#/definitions/types.Test'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/http.Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/http.Error'
-      summary: Retrieve tests by task ID
+      summary: Put tests
 swagger: "2.0"

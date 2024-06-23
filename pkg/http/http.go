@@ -60,6 +60,17 @@ func BadRequest(err error) *Error {
 	}
 }
 
+func NotFound(err error) *Error {
+	return &Error{
+		Status:     StatusError,
+		statusCode: http.StatusNotFound,
+		Payload: ErrorPayload{
+			Message: err.Error(),
+		},
+		err: err,
+	}
+}
+
 func AddHandler(
 	mountMethod func(pattern string, h http.HandlerFunc),
 	pattern string,
